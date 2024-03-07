@@ -21,18 +21,24 @@ jobs:
 
       - name: Install dependencies
         run: npm install
+        working-directory: ./heavenboards
 
       - name: Lint
         run: npm run lint
+        working-directory: ./heavenboards
 
       - name: Format check
         run: npm run format -- --check
+        working-directory: ./heavenboards
 
       - name: Type checking
         run: npm run type-check
+        working-directory: ./heavenboards
 
       - name: Run unit tests
         run: npm run test:unit
+        working-directory: ./heavenboards
 
       - name: Build
         run: npm run build
+        working-directory: ./heavenboards
