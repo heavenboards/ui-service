@@ -24,8 +24,11 @@ const toggleLoginSignup = () => {
 };
 
 const onSuccessfulAuth = (token: string) => {
-    apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    console.log("Токен: ", token);
     localStorage.setItem('authToken', token);
+    apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+    //eventBus.emit('auth-success');
 
     //проверка redirect в query (если пытались до auth зайти) то перенаправляет
     const redirect = router.currentRoute.value.query.redirect;
@@ -37,13 +40,21 @@ const onSuccessfulAuth = (token: string) => {
 };
 
 const handleSubmit = async () => {
-    let endpoint = isLogin.value ? '/authenticate' : '/register';
+    let endpoint = isLogin.value ? 'auth/authenticate' : 'auth/register';
     let payload = isLogin.value ? {username: username.value, password: password.value} :
                                   {username: username.value, password: password.value, firstName: firstName.value, lastName: lastName.value};
+
+    console.log("Endpoint: ", endpoint)
+    console.log("Payload: ", payload)
     try {
         const response = await apiClient.post(endpoint, payload);
-        if (response.data.token) {
-          onSuccessfulAuth(response.data.token);
+
+        console.log('Response: ', response);
+
+        const { token } = response.data;
+        if (token) {
+          onSuccessfulAuth(token);
+          await fetchUserData(username.value);
         } else {
           console.error('Token was not received!');
         }
@@ -51,6 +62,21 @@ const handleSubmit = async () => {
         console.error('Error: ', error);
     }
 };
+
+const fetchUserData = async (username: string) => {
+  try {
+    const response = await apiClient.get(`user/${username}`);
+    const userData = response.data;
+    localStorage.setItem('username', userData.username)
+    localStorage.setItem('firstName', userData.firstName);
+    localStorage.setItem('lastName', userData.lastName);
+
+    firstName.value = userData.firstName;
+    lastName.value = userData.lastName;
+  } catch (error) {
+    console.log('Ошибка при получении данных пользователя: ', error);
+  }
+}
 </script>
 
 <template>
@@ -63,17 +89,17 @@ const handleSubmit = async () => {
               </div>
               <div v-if="isLogin" class="auth">
                   <form @submit.prevent="handleSubmit">
-                      <input name="username" type="text" placeholder="Username" required>
-                      <input name="password" type="password" placeholder="Password" required>
+                      <input v-model="username" type="text" placeholder="Username" required>
+                      <input v-model="password" type="password" placeholder="Password" required>
                       <input type="submit" value="Log in">
                   </form>
               </div>
               <div v-else class="registration">
                   <form @submit.prevent="handleSubmit">
-                      <input name="username" type="text" placeholder="Username" required>
-                      <input name="password" type="password" placeholder="Password" required>
-                      <input name="firstName" type="text" placeholder="First Name" required>
-                      <input name="lastName" type="text" placeholder="Last Name" required>
+                      <input v-model="username" type="text" placeholder="Username" required>
+                      <input v-model="password" type="password" placeholder="Password" required>
+                      <input v-model="firstName" type="text" placeholder="First Name" required>
+                      <input v-model="lastName" type="text" placeholder="Last Name" required>
                       <input type="submit" value="Sign up">
                   </form>
               </div>
