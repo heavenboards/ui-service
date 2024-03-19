@@ -14,15 +14,9 @@
     };
 
     onMounted(() => {
-      //eventBus.on('auth-success', fetchUserData);
-
       if (localStorage.getItem('authToken')) {
         fetchUserData();
       }
-    });
-
-    onUnmounted(() => {
-      //eventBus.off('auth-success', fetchUserData);
     });
 </script> 
 <template>

@@ -28,8 +28,6 @@ const onSuccessfulAuth = (token: string) => {
     localStorage.setItem('authToken', token);
     apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
-    //eventBus.emit('auth-success');
-
     //проверка redirect в query (если пытались до auth зайти) то перенаправляет
     const redirect = router.currentRoute.value.query.redirect;
     if (typeof redirect === 'string' && redirect) {
