@@ -62,3 +62,7 @@ input:focus {
     font-size: 1.2em;
     text-transform: uppercase;
 }
+
+.error-message {
+    color: #d41313;
+}
